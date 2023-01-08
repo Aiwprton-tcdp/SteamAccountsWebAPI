@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"sawa/app/services"
-	"sawa/controllers"
+	"saw/app/services"
+	"saw/controllers"
 
 	"github.com/gin-gonic/gin"
 )

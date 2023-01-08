@@ -2,15 +2,14 @@ package main
 
 import (
 	"log"
-	"sawa/app"
-	"sawa/models"
+	"saw/app"
+	"saw/models"
 
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load(".env")
-	if err != nil {
+	if err := godotenv.Load(".env"); err != nil {
 		log.Fatalf("Error loading .env file")
 	}
 

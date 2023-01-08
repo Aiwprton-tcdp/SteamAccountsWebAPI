@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"sawa/app/services"
-	"sawa/dto"
+	"saw/app/services"
+	"saw/dto"
 
 	"github.com/gin-gonic/gin"
 )

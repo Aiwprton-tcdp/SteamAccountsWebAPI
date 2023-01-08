@@ -2,12 +2,12 @@ package controllers
 
 import (
 	"net/http"
-	"sawa/app/services"
-	"sawa/models"
+	"saw/app/services"
+	"saw/models"
 
 	"github.com/gin-gonic/gin"
-	"github.com/solovev/steam_go"
 	"gorm.io/gorm/clause"
+	// "github.com/freman/go-steamauth"
 )
 
 type LPS struct {
@@ -31,8 +31,7 @@ func GetAccounts(c *gin.Context) {
 	var accounts []models.Account
 
 	models.GetDB().Model(&models.Account{}).
-		Where("blocked = ?", "false").
-		Limit(100).Find(&accounts)
+		Find(&accounts, models.Account{Blocked: false})
 
 	if accounts == nil {
 		c.AbortWithStatus(http.StatusNoContent)
@@ -58,8 +57,7 @@ func GetAccount(c *gin.Context) {
 func AddAccounts(c *gin.Context) {
 	var accounts []models.Account
 
-	err := c.ShouldBindJSON(&accounts)
-	if err != nil {
+	if err := c.ShouldBindJSON(&accounts); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -72,7 +70,7 @@ func AddAccounts(c *gin.Context) {
 			UpdateAll: true,
 		}).Create(&accounts)
 
-	c.JSON(http.StatusCreated, gin.H{"count": result.RowsAffected})
+	c.JSON(http.StatusCreated, gin.H{"data": result.RowsAffected})
 }
 
 func UpdateAccount(c *gin.Context) {
@@ -149,27 +147,8 @@ func CheckAvailability(c *gin.Context) {
 		return
 	}
 
-	opId := steam_go.NewOpenId(c.Request)
-	switch opId.Mode() {
-	case "":
-		c.Status(http.StatusNotFound)
-	case "cancel":
-		c.Status(http.StatusForbidden)
-	default:
-		steamId, err := opId.ValidateAndGetId()
-		if err != nil {
-			c.JSON(http.StatusOK, gin.H{"data": err.Error()})
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{"data": steamId})
-	}
-
-	// if code == -1 {
-	// 	c.Status(http.StatusNoContent)
-	// } else {
-	// 	c.JSON(http.StatusOK, gin.H{"data": code})
-	// }
+	ok := services.Check(account)
+	c.JSON(http.StatusOK, gin.H{"data": ok})
 }
 
 func GetLPS(c *gin.Context) {
